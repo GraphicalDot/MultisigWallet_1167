@@ -19,10 +19,12 @@ contract Proxy is ProxyData {
         assembly {
             let freememstart := mload(0x40)
             calldatacopy(freememstart, 0, calldatasize())
-            let success := delegatecall(not(0), addr, freememstart, calldatasize(), freememstart, 32)
+            let success := delegatecall(not(0), addr, freememstart, calldatasize(), freememstart, 0)
+            returndatacopy(freememstart, 0, returndatasize())
+            
             switch success
-            case 0 { revert(freememstart, 32) }
-            default { return(freememstart, 32) }
+            case 0 { revert(freememstart, returndatasize()) }
+            default { return(freememstart, returndatasize()) }
         }
     }
 }
